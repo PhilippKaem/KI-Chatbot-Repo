@@ -9,12 +9,12 @@ from models import Models
 
 load_dotenv()
 
-# Initialize the models
+# Modelle initilisieren (sowohl LLM als auch die Anbindungen)
 models = Models()
 embeddings = models.embeddings_ollama
 llm = models.model_ollama
 
-# Define constants
+# Definition der Konstanten
 data_folder = "./data"
 chunk_size = 1000
 chunk_overlap = 50
@@ -24,12 +24,12 @@ check_interval = 10
 vector_store = Chroma(
     collection_name="documents",
     embedding_function=embeddings,
-    persist_directory="./db/chroma_langchain_db",  # Where to save data locally
+    persist_directory="./db/chroma_langchain_db",  # Wo die Daten lokal gespeichert werden
 )
 
-# Ingest a file
+# Aufnahme von Dokumenten
 def ingest_file(file_path):
-    # Skip non-PDF files
+    # Überspringen von nicht-PDF Dateien
     if not file_path.lower().endswith('.pdf'):
         print(f"Skipping non-PDF file: {file_path}")
         return
@@ -46,7 +46,7 @@ def ingest_file(file_path):
     vector_store.add_documents(documents=documents, ids=uuids)
     print(f"Finished ingesting file: {file_path}")
 
-# Main loop
+# Main Schleife
 def main_loop():
     while True:
         for filename in os.listdir(data_folder):
@@ -56,8 +56,8 @@ def main_loop():
                 new_filename = "_" + filename
                 new_file_path = os.path.join(data_folder, new_filename)
                 os.rename(file_path, new_file_path)
-        time.sleep(check_interval)  # Check the folder every 10 seconds
+        time.sleep(check_interval)  # Überprüft den Ordner alle 10 Sekunden, ob neue Dateien hinzugefügt wurden
 
-# Run the main loop
+# Ausführung der Main Schleife
 if __name__ == "__main__":
     main_loop()

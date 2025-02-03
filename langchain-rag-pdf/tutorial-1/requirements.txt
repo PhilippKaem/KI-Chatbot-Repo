@@ -1,7 +1,9 @@
+"Die folgenden Bibliotheken müssen mit 'pip install ...' 
+der Umgebung hinzugefügt werden, damit der Chatbot funktioniert"  
+
 langchain-core
 langchain-community
 langchain_ollama
-langchain-openai
 langchain_chroma
 python-dotenv
 pyppeteer
