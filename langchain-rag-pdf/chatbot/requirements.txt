@@ -9,3 +9,8 @@ python-dotenv
 pyppeteer
 pypdf
 uuid
+
+"Die folgenden Modelle müssen mit 'olllama pull ...'"  
+
+ mxbai-embed-large
+ llama3.2
