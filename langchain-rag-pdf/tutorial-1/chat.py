@@ -35,7 +35,7 @@ Beispielantwort:
 - "Im Schwerpunkt Data Science des Wirtschaftsinformatik-Studiums lernst du, große Datenmengen zu analysieren und Geschäftsprozesse datengetrieben zu optimieren. Wichtige Themen sind Statistik, maschinelles Lernen und Programmierung."
 
 Dein Ziel ist es, Studieninteressierte bestmöglich zu informieren und ihnen eine fundierte Entscheidungsgrundlage für ihr Studium zu geben. Deine Antworten basieren auf den übermittelten Daten"""),
-        ("human", "Benutze die Frage des Benutzers {input}, um die Frage zu beantworten. Benutze primär den {context}, um die Frage zu beantworten.")
+        ("human", "Benutze die Frage des Benutzers {input}, um die Frage zu beantworten. Benutze nur den {context}, um die Frage zu beantworten.")
     ]
 )
 
@@ -49,12 +49,12 @@ retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
 # Main Schleife
 def main():
     while True:
-        query = input("User (or type 'q', 'quit', or 'exit' to end): ")
+        query = input("Benutzer (gebe 'q', 'quit', oder 'exit', um den Chat zu beenden): ")
         if query.lower() in ['q', 'quit', 'exit']:
             break
         
         result = retrieval_chain.invoke({"input": query})
-        print("Assistant: ", result["answer"], "\n\n")
+        print("WIBot: ", result["answer"], "\n\n")
         
 # Ausführen der main Schleife
 if __name__ == "__main__":
