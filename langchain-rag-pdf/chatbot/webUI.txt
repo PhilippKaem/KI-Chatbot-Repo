@@ -1,7 +1,2 @@
-"Um die Open WebUI für den eigenen Chatbot zu benutzen muss folgendes befolgt werden:"
-
-im Pfad folgendes eingeben: python -m uvicorn api:app --host 0.0.0.0 --port 8000 --reload
-
-docker run -d --name open-webui -p 3000:3000 `
-   --env CUSTOM_API_ENDPOINT=http://host.docker.internal:8000/chat `
-   ghcr.io/open-webui/open-webui:main
+Zum Starten der Schnittstelle für den Live Server: python chat_api.py
+Rechtsklick auf index.html und dann open with live Server
