@@ -175,6 +175,18 @@
   animation: loading-dots3 0.6s infinite;
 }
 
+.chat-header {
+  position: relative;
+}
+
+.header-logo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  max-width: 200px; /* passe die Größe an, wie es benötigt wird */
+  height: auto;
+}
+
 @keyframes loading-dots1 {
   0% {
     transform: scale(0);
