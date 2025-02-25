@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Aktueller Chatverlauf (nicht archiviert)
   let currentChatSession = [];
+  // Falls ein archivierter Chat geladen wurde, merken wir uns dessen Index
+  let loadedArchiveIndex = null;
 
   // Erzeugt ein Nachrichten-Element inklusive Label
   function createMessageElement(text, sender) {
@@ -95,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
       // Ersetze den Inhalt der Lade-Nachricht mit der tatsächlichen Antwort
       const contentDiv = loadingMessageWrapper.querySelector(".message-content.bot");
       contentDiv.innerText = botResponse;
-      // Speichere die Bot-Antwort im aktuellen Chat
       currentChatSession.push({ sender: "bot", text: botResponse });
     } catch (error) {
       console.error("Fehler beim Abrufen der Antwort:", error);
@@ -105,27 +106,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Archiviert den aktuellen Chat und startet einen neuen Chat
-  function newChat() {
+  // Speichert den aktuellen Chat im Archiv und entfernt ggf. einen fortgeführten archivierten Chat
+  function saveCurrentChat() {
     if (currentChatSession.length > 0) {
       let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
-      archived.push({
-        timestamp: new Date().toISOString(),
-        messages: currentChatSession
-      });
+      // Falls ein archivierter Chat geladen war, ersetzen wir ihn
+      if (loadedArchiveIndex !== null) {
+        archived[loadedArchiveIndex] = {
+          timestamp: new Date().toISOString(),
+          messages: currentChatSession
+        };
+        loadedArchiveIndex = null;
+      } else {
+        archived.push({
+          timestamp: new Date().toISOString(),
+          messages: currentChatSession
+        });
+      }
       localStorage.setItem("chatSessions", JSON.stringify(archived));
+      loadArchivedChats();
     }
+  }
+
+  // Archiviert den aktuellen Chat und startet einen neuen Chat
+  function newChat() {
+    saveCurrentChat();
     currentChatSession = [];
     chatMessages.innerHTML = "";
+  }
+
+  // Löscht einen archivierten Chat anhand seines Indexes
+  function deleteArchivedChat(index) {
+    let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
+    archived.splice(index, 1);
+    localStorage.setItem("chatSessions", JSON.stringify(archived));
     loadArchivedChats();
   }
 
   // Lädt alle archivierten Chats in die Sidebar und zeigt den Zeitstempel sowie
-  // eine Vorschau (letzte User-Nachricht) an
+  // eine Vorschau (letzte User-Nachricht) an; ergänzt um einen "X"-Button zum Löschen
   function loadArchivedChats() {
     chatSessionsContainer.innerHTML = "";
     let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
     archived.forEach((session, index) => {
+      const sessionContainer = document.createElement("div");
+      sessionContainer.classList.add("session-container");
+
       const sessionLink = document.createElement("a");
       sessionLink.href = "#";
       const date = new Date(session.timestamp);
@@ -140,37 +166,55 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         displayText += " - " + msgText;
       }
-
       sessionLink.innerText = displayText;
       sessionLink.dataset.index = index;
       sessionLink.addEventListener("click", (e) => {
         e.preventDefault();
-        if (currentChatSession.length > 0 &&
-            !confirm("Der aktuelle Chat ist nicht archiviert. Möchtest du fortfahren und den archivierten Chat laden?")) {
-          return;
-        }
+        // Lade den archivierten Chat (ohne Bestätigungs-Popup)
         loadChatSession(index);
       });
-      chatSessionsContainer.appendChild(sessionLink);
+
+      // Erstelle den "X"-Button zum Löschen
+      const deleteButton = document.createElement("button");
+      deleteButton.classList.add("delete-session");
+      deleteButton.innerText = "X";
+      deleteButton.addEventListener("click", (e) => {
+        e.stopPropagation(); // Verhindert das Auslösen des Click-Events vom Link
+        if (confirm("Möchtest du diesen Chat wirklich löschen?")) {
+          deleteArchivedChat(index);
+        }
+      });
+
+      sessionContainer.appendChild(sessionLink);
+      sessionContainer.appendChild(deleteButton);
+      chatSessionsContainer.appendChild(sessionContainer);
     });
   }
 
-  // Lädt einen archivierten Chat (und entfernt ihn aus dem Archiv)
+  // Lädt einen archivierten Chat, bleibt aber im Archiv erhalten, bis er fortgeführt wird
   function loadChatSession(index) {
     let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
     const session = archived[index];
     if (!session) return;
     chatMessages.innerHTML = "";
-    currentChatSession = session.messages;
+    currentChatSession = session.messages.slice(); // Kopie des archivierten Chats
     session.messages.forEach(msg => {
       const messageWrapper = createMessageElement(msg.text, msg.sender);
       chatMessages.appendChild(messageWrapper);
     });
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    archived.splice(index, 1);
-    localStorage.setItem("chatSessions", JSON.stringify(archived));
-    loadArchivedChats();
+    loadedArchiveIndex = index;
+
+      // Entferne 'selected' von allen Links und setze ihn für den ausgewählten Link
+  document.querySelectorAll("#chat-sessions .session-container a").forEach(link => {
+    link.classList.remove("selected");
+  });
+  const selectedLink = document.querySelector(`#chat-sessions .session-container a[data-index="${index}"]`);
+  if (selectedLink) {
+    selectedLink.classList.add("selected");
   }
+  }
+  
 
   // Event-Listener für Senden-Button und Enter-Taste
   sendButton.addEventListener("click", postChatMessage);
@@ -181,6 +225,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   newChatButton.addEventListener("click", newChat);
+
+  // Automatisches Speichern beim Verlassen der Seite
+  window.addEventListener("beforeunload", saveCurrentChat);
 
   // Beim Laden der Seite werden die archivierten Chats in der Sidebar angezeigt
   loadArchivedChats();
