@@ -165,104 +165,57 @@ Success:
 
 # Modulhandbuch
 
-Q: 
+Q: In welchem Studienjahr wird das Modul "Künstliche Intelligenz und Machine Learning" unterrichtet?
 A: 
-Fact:
+Fact: Im 2. Studienjahr​
 Success: 
 --
 
-Q: 
+Q: Welche Module gehören zu den Grundlagen im 1. Studienjahr?
 A: 
-Fact:
+Fact: Grundlagen Data Science, Informatik, Programmierung, Lineare Algebra & Analysis​, Schlüsselqualifikationen und Praxismodul 1
 Success: 
 --
 
-Q: 
+Q: Welche Prüfungsformen werden in den Modulen eingesetzt?
 A: 
-Fact:
+Fact: Klausuren, Portfolios, Projektberichte, Präsentationen
 Success: 
 --
 
-Q: 
+Q: In welchem Semester erfolgt die Bachelorarbeit?
 A: 
-Fact:
+Fact: Im 6. Semester
 Success: 
 --
 
-Q: 
+Q: Welche Programmiersprachen werden im Studium verwendet?
 A: 
-Fact:
+Fact: Python und Java
 Success: 
 --
 
-Q: 
+Q:  Welche mathematischen Grundlagen werden im 1. Studienjahr behandelt?
 A: 
-Fact:
+Fact: Lineare Algebra, Analysis
 Success: 
 --
 
-Q: 
+Q: Was ist ein Ziel des Moduls "Schlüsselqualifikationen"?
 A: 
-Fact:
+Fact: Verbesserung von Teamarbeit, Kommunikation und Präsentationsfähigkeiten
 Success: 
 --
 
-Q: 
+Q: Welche grundlegende Informatikthemen werden in den ersten Semestern vermittelt?
 A: 
-Fact:
+Fact:  Betriebssysteme, Netzwerke, Rechnerarchitektur​  
 Success: 
 --
 
-Q: 
+Q: Wie viele Praxismodule gibt es im Studium?
 A: 
-Fact:
+Fact: Es gibt drei Praxismodule
 Success: 
 --
 
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
-
-Q: 
-A: 
-Fact:
-Success: 
---
