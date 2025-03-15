@@ -16,8 +16,8 @@ llm = models.model_ollama
 
 # Definition der Konstanten
 data_folder = "./data"
-chunk_size = 1000
-chunk_overlap = 50
+chunk_size = 500
+chunk_overlap = 100
 check_interval = 10
 
 # Chroma vector store
