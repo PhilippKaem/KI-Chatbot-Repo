@@ -45,15 +45,35 @@ Success:
 --
 
 Q: Was sind Duale Partner der DHBW?
-A: 
+A: Um dir eine fundierte Entscheidungsgrundlage für dein Studium zu geben, möchte ich mich auf deine Frage konzentrieren: Was sind Duale Partner der DHBW?
+
+Die Duale Partner der DHBW Ravensburg sind Unternehmen und Einrichtungen, die mit der Hochschule in Kooperation stehen. Diese Unternehmen reservieren für dich einen Studienplatz und wählen ihre Studierenden selbst aus. Es gibt verschiedene Möglichkeiten, wie du dich als Dualer Partner bewirbst:
+
+1. **Direkte Bewerbung**: Du kannst dich direkt bei den Dualen Partnern bewerben, die auf der aktuellen Firmenliste der DHBW Ravensburg zu finden sind.
+2. **Bewerberbörse**: Auf der Bewerberbörse der DHBW Ravensburg kannst du ein Profil anlegen und es mit den Duale Partnern vergleichen. Die Partnerunternehmen können dann deine Bewerbung überprüfen und dich kontaktieren, wenn sie Interesse haben.
+3. **Stellenanzeigen**: Du kannst auch nach Stellenanzeigen für das dualen Studium suchen, die auf verschiedenen Kanälen veröffentlicht werden, wie Zeitungen, Online-Stellenbörsen, Soziale Medien oder Websites.
+
+Es ist wichtig zu beachten, dass eine Bewerbung an der Hochschule nicht notwendig ist, da die Partnerunternehmen ihre gewünschten Studienplätze bereits im Voraus an der DHBW Ravensburg reservieren. Die Unternehmen wählen ihre Studierenden selbst aus, und du solltest dich frühzeitig über die Vorgaben und vor allem die Bewerbungsfristen informieren.
+
+Ich hoffe, diese Informationen helfen dir bei deiner Suche nach einem Dualen Partner! Wenn du noch weitere Fragen hast, stehe ich gerne zur Verfügung.
 Fact: Duale Partner sind Unternehmen und Einrichtungen, die mit der DHBW Ravensburg kooperieren und Studienplätze anbieten​
-Success: 
+Success: 1
 --
 
 Q: Muss ich mich auch bei der Hochschule bewerben?
-A: 
+A: Die Frage "Muss ich mich auch bei der Hochschule bewerben?" ist eine gute Gelegenheit, um die Details des dualen Studiums an der DHBW Ravensburg zu klären.
+
+Um einen dualen Studiengang an der DHBW Ravensburg zu beginnen, musst du dich nicht direkt an die Hochschule bewerben. Stattdessen solltest du dich direkt an die Dualen Partner-Unternehmen bewerben, die ein Studienvertrag mit der Hochschule abgeschlossen haben.
+
+Es gibt jedoch eine Ausnahme: Wenn du noch keinen Abschluss hast und deine Zulassungsvoraussetzungen erfüllt sind, kannst du dich initiativ bei einem Unternehmen bewerben, das nicht noch ein Dualer Partner der DHBW Ravensburg ist. Es ist jedoch wichtig zu beachten, dass die Unternehmen ihre eigenen Vorgaben und Fristen haben, und du solltest dich daher frühzeitig über diese informieren.
+
+Die Partnerunternehmen reservieren ihre Studienplätze im Voraus an der DHBW Ravensburg, so dass eine Bewerbung an der Hochschule zu keinem Zeitpunkt notwendig ist. Der Studienvertrag wird zwischen dir und dem Unternehmen unterzeichnet, und du erhältst dann den Zulassungs- und Immatrikulationsbescheid.
+
+Um ein Partnerunternehmen zu finden, kannst du dich auf die Website der DHBW Ravensburg oder der DHBW-Website bewegen. Dort findest du Informationen über die Dualen Partnern und ihre Vorgaben für die Bewerbung.
+
+Ich hoffe, das hilft dir bei deiner Suche nach einem dualen Studiengang an der DHBW Ravensburg!
 Fact: Nein, eine Bewerbung an der Hochschule ist nicht notwendig, da die Dualen Partner bereits die Studienplätze reservieren
-Success: 
+Success: 1
 --
 
 Q:  Wie hoch ist das Gehalt im dualen Studium?
