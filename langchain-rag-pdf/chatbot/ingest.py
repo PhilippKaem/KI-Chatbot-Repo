@@ -71,13 +71,17 @@ def main():
     delete_db(db_directory)
     vector_store = initialize_vector_store()
 
-    files = [f for f in os.listdir(data_folder) if f.lower().endswith('.pdf')]
+    files = [f for f in os.listdir(data_folder)]
+    print(f"Files found in data folder: {files}")
+
+    pdf_files = [f for f in files if f.lower().endswith('.pdf')]
+    print(f"PDF files found: {pdf_files}")
     
-    if not files:
+    if not pdf_files:
         print("No PDF files found. Exiting.")
         return
 
-    for filename in files:
+    for filename in pdf_files:
         file_path = os.path.join(data_folder, filename)
         ingest_file(file_path, vector_store)
 
