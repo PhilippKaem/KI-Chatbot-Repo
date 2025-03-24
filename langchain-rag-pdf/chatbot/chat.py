@@ -31,9 +31,8 @@ Dein Ziel ist es, Studieninteressierte bestmöglich zu informieren und ihnen ein
 )
 
 # Definition der retrieval chain
-retriever = vector_store.as_retriever(kwargs={"k": 10})
+retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 10})#mmr = maximal marginal relevance -> sucht auch nach Synonymen, fetch_k = Es werden 10 Dokumente geholt und nur die besten 5 für die antwort verwendet 
 combine_docs_chain = create_stuff_documents_chain(
     llm, prompt
 )
 retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
-
