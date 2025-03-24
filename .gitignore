@@ -1,2 +1,6 @@
 Ollama
 .DS_Store
+langchain-rag-pdf/chatbot/db/chroma_langchain_db/05296d0b-96b3-409c-9dbb-51b012988485/data_level0.bin
+langchain-rag-pdf/chatbot/db/chroma_langchain_db/05296d0b-96b3-409c-9dbb-51b012988485/header.bin
+*.sqlite3
+/langchain-rag-pdf/chatbot/db/chroma_langchain_db
