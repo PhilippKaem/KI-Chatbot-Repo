@@ -1,38 +1,80 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains import create_retrieval_chain
+from langchain.chains.history_aware_retriever import create_history_aware_retriever
+from langchain.chains.retrieval import create_retrieval_chain
 from langchain_chroma import Chroma
 from models import Models
+import uuid
 
-# Initialisierung der Modelle
+# Initialisierung
 models = Models()
 embeddings = models.embeddings_ollama
 llm = models.model_ollama
 
-# Initialisierung des Vektorstrores
+# Vektordatenbank
 vector_store = Chroma(
     collection_name="documents",
     embedding_function=embeddings,
-    persist_directory="./db/chroma_langchain_db",  # Wo die Dateien lokal gespeichert werden
+    persist_directory="./db/chroma_langchain_db"
 )
 
-# Defintion des Chat prompt
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", """Du bist ein erfahrener Studienberater für die DHBW Ravensburg im Studiengang Wirtschaftsinformatik mit dem Studienschwerpunkt Data Science. Deine Aufgabe ist es, Studieninteressierte kompetent und verständlich über den Studiengang zu informieren.
+retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 10})
 
-Der duale Studiengang kombiniert Wirtschaftsinformatik mit Data Science und vermittelt Wissen in Statistik, maschinellem Lernen, Big Data-Technologien und Programmierung (z. B. Python, SQL). Studierende lernen, datengetriebene Entscheidungen zu treffen und Geschäftsprozesse mit modernen Analysemethoden zu optimieren.
+# Verlaufsspeicherung
+chat_sessions = {}
 
-Dein Stil ist professionell, verständlich und motivierend. Du erklärst komplexe Inhalte klar und gehst individuell auf Fragen ein. Falls eine Frage nicht in deinen Bereich fällt, verweist du freundlich auf passende Anlaufstellen wie die DHBW-Website oder die Studienberatung.
+def start_new_session():
+    new_session_id = str(uuid.uuid4())
+    chat_sessions[new_session_id] = []
+    return new_session_id
 
-Dein Ziel ist es, Studieninteressierte bestmöglich zu informieren und ihnen eine fundierte Entscheidungsgrundlage für ihr Studium zu geben. Deine Antworten basieren auf den übermittelten Daten"""),
-        ("human", "Benutze die Frage des Benutzers {input}, um die Frage zu beantworten. Benutze nur den {context}, um die Frage zu beantworten.")
-    ]
+def get_chat_history(session_id: str):
+    if session_id not in chat_sessions:
+        chat_sessions[session_id] = []
+    return chat_sessions[session_id]
+
+# Prompt zur Kontextsensitiven Retrieval
+retriever_prompt = ChatPromptTemplate.from_messages([
+    ("system", "Du bist ein Studienberater für Wirtschaftsinformatik an der DHBW Ravensburg."),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}")
+])
+
+history_aware_retriever = create_history_aware_retriever(
+    llm,
+    retriever,
+    retriever_prompt
 )
 
-# Definition der retrieval chain
-retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 10})#mmr = maximal marginal relevance -> sucht auch nach Synonymen, fetch_k = Es werden 10 Dokumente geholt und nur die besten 5 für die antwort verwendet 
-combine_docs_chain = create_stuff_documents_chain(
-    llm, prompt
-)
-retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
+# Hier ist die Korrektur: Statt ("context", "{context}") nutzen wir {context} im Text
+answer_prompt = ChatPromptTemplate.from_messages([
+    ("system", """Du bist ein erfahrener Studienberater für die DHBW Ravensburg im Studiengang Wirtschaftsinformatik mit dem Studienschwerpunkt Data Science. 
+Deine Aufgabe ist es, Studieninteressierte kompetent und verständlich über den Studiengang zu informieren.
+
+Hier sind kontextuelle Informationen zur Beantwortung der Frage:
+{context}"""),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}")
+])
+
+# Stuffing Chain
+combine_docs_chain = create_stuff_documents_chain(llm, answer_prompt)
+
+# Retrieval Chain
+retrieval_chain = create_retrieval_chain(history_aware_retriever, combine_docs_chain)
+
+def get_message_history(session_id: str):
+    return get_chat_history(session_id)
+
+def chain_with_history(session_id: str, input_message: str):
+    chat_history = get_message_history(session_id)
+    response = retrieval_chain.invoke({
+        "input": input_message,
+        "chat_history": chat_history
+    })
+
+    # Verlauf updaten
+    chat_history.append({"role": "user", "content": input_message})
+    chat_history.append({"role": "assistant", "content": response["answer"]})
+
+    return response

@@ -1,27 +1,31 @@
-// Wartet, bis das DOM geladen ist, bevor wir Event-Listener setzen
+// Wartet, bis die komplette Seite geladen ist
 document.addEventListener("DOMContentLoaded", () => {
+  // Referenzen auf DOM-Elemente
   const chatMessages = document.getElementById("chat-messages");
   const userInput = document.getElementById("user-input");
   const sendButton = document.getElementById("send-button");
   const newChatButton = document.querySelector(".new-chat-btn");
   const chatSessionsContainer = document.getElementById("chat-sessions");
 
-  // Aktueller Chatverlauf (nicht archiviert)
+  // Aktueller Verlauf und Session-Verwaltung
   let currentChatSession = [];
-  // Falls ein archivierter Chat geladen wurde, merken wir uns dessen Index
   let loadedArchiveIndex = null;
+  let sessionId = generateSessionId(); // Erstellt eine eindeutige ID für jeden Chat
 
-  // Erzeugt ein Nachrichten-Element inklusive Label
+  // Erzeugt eine eindeutige Session-ID für neue Chats
+  function generateSessionId() {
+    return "session_" + Date.now() + "_" + Math.random().toString(36).substring(2, 10);
+  }
+
+  // Erstellt eine einzelne Nachricht im DOM
   function createMessageElement(text, sender) {
     const messageWrapper = document.createElement("div");
-    messageWrapper.classList.add("message", sender); // => .message.user oder .message.bot
+    messageWrapper.classList.add("message", sender);
 
-    // Label erstellen
     const label = document.createElement("div");
     label.classList.add("message-label");
     label.innerText = sender === "user" ? "User" : "Studienberater Bot";
 
-    // Nachrichtentext
     const messageText = document.createElement("div");
     messageText.classList.add("message-content", sender);
     messageText.innerText = text;
@@ -31,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return messageWrapper;
   }
 
-  // Fügt eine Nachricht dem Chat hinzu und speichert sie im aktuellen Verlauf
+  // Fügt eine Nachricht dem Chatverlauf im DOM hinzu
   function addMessage(text, sender) {
     const messageWrapper = createMessageElement(text, sender);
     chatMessages.appendChild(messageWrapper);
@@ -39,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentChatSession.push({ sender, text });
   }
 
-  // Fügt eine Bot-Nachricht mit Lade-Animation ein und gibt den Container zurück
+  // Zeigt animierte Ladepunkte an, während die Bot-Antwort geladen wird
   function addBotLoadingMessage() {
     const messageWrapper = document.createElement("div");
     messageWrapper.classList.add("message", "bot");
@@ -50,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const content = document.createElement("div");
     content.classList.add("message-content", "bot");
-    // Ladeanimation: animierte Punkte (HTML-Code, CSS muss in styles.css eingebunden sein)
     content.innerHTML = `
       <div class="loading-dots">
         <div></div><div></div><div></div><div></div>
@@ -65,38 +68,50 @@ document.addEventListener("DOMContentLoaded", () => {
     return messageWrapper;
   }
 
-  // Kommuniziert mit deinem Flask/Ollama-Backend
+  // Sendet die Nutzerfrage an das Backend und erhält die Bot-Antwort
   async function askChatbot(question) {
+    // Entscheidet, welche Session-ID verwendet wird:
+    // Wenn ein Archiv geladen ist, nutze eine feste ID – sonst aktuelle Session-ID
+    const usedSessionId = loadedArchiveIndex !== null
+      ? `chat_${loadedArchiveIndex}`
+      : sessionId;
+
     const response = await fetch("http://localhost:5000/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ input: question })
+      body: JSON.stringify({ input: question, session_id: usedSessionId })
     });
 
     if (!response.ok) {
       throw new Error(`Server-Fehler: ${response.statusText}`);
     }
+
     const data = await response.json();
     return data.answer;
   }
 
-  // Sendet die Benutzernachricht und ruft die Bot-Antwort ab (inkl. Ladeanimation)
+  // Steuert den Ablauf, wenn eine Nachricht abgeschickt wird
   async function postChatMessage() {
     const userMessage = userInput.value.trim();
     if (!userMessage) return;
+
+    // Zeige Nutzernachricht
     addMessage(userMessage, "user");
     userInput.value = "";
 
-    // Füge Lade-Animation als Bot-Nachricht hinzu
+    // Zeige Ladeanzeige für Bot
     const loadingMessageWrapper = addBotLoadingMessage();
 
     try {
       const botResponse = await askChatbot(userMessage);
-      // Ersetze den Inhalt der Lade-Nachricht mit der tatsächlichen Antwort
+
+      // Ersetze Ladeanzeige durch Antworttext
       const contentDiv = loadingMessageWrapper.querySelector(".message-content.bot");
       contentDiv.innerText = botResponse;
+
+      // Speichere Bot-Antwort im Verlauf
       currentChatSession.push({ sender: "bot", text: botResponse });
     } catch (error) {
       console.error("Fehler beim Abrufen der Antwort:", error);
@@ -106,11 +121,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Speichert den aktuellen Chat im Archiv und entfernt ggf. einen fortgeführten archivierten Chat
+  // Speichert den aktuellen Chatverlauf lokal im LocalStorage
   function saveCurrentChat() {
     if (currentChatSession.length > 0) {
       let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
-      // Falls ein archivierter Chat geladen war, ersetzen wir ihn
+
+      // Überschreibt alten Chatverlauf, wenn Archiv geladen wurde
       if (loadedArchiveIndex !== null) {
         archived[loadedArchiveIndex] = {
           timestamp: new Date().toISOString(),
@@ -123,19 +139,22 @@ document.addEventListener("DOMContentLoaded", () => {
           messages: currentChatSession
         });
       }
+
       localStorage.setItem("chatSessions", JSON.stringify(archived));
       loadArchivedChats();
     }
   }
 
-  // Archiviert den aktuellen Chat und startet einen neuen Chat
+  // Startet einen neuen Chat (alte Session speichern, neues Fenster anzeigen)
   function newChat() {
     saveCurrentChat();
     currentChatSession = [];
     chatMessages.innerHTML = "";
+    loadedArchiveIndex = null;
+    sessionId = generateSessionId(); // Neue eindeutige ID für neue Chat-Sitzung
   }
 
-  // Löscht einen archivierten Chat anhand seines Indexes
+  // Löscht einen gespeicherten Chat aus dem LocalStorage
   function deleteArchivedChat(index) {
     let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
     archived.splice(index, 1);
@@ -143,11 +162,11 @@ document.addEventListener("DOMContentLoaded", () => {
     loadArchivedChats();
   }
 
-  // Lädt alle archivierten Chats in die Sidebar und zeigt den Zeitstempel sowie
-  // eine Vorschau (letzte User-Nachricht) an; ergänzt um einen "X"-Button zum Löschen
+  // Zeigt alle gespeicherten Chatverläufe in der Seitenleiste an
   function loadArchivedChats() {
     chatSessionsContainer.innerHTML = "";
     let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
+
     archived.forEach((session, index) => {
       const sessionContainer = document.createElement("div");
       sessionContainer.classList.add("session-container");
@@ -157,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const date = new Date(session.timestamp);
       let displayText = date.toLocaleString();
 
-      // Finde die letzte Nachricht vom User
+      // Vorschau der letzten Nutzernachricht
       const lastUserMessage = session.messages.slice().reverse().find(msg => msg.sender === "user");
       if (lastUserMessage) {
         let msgText = lastUserMessage.text;
@@ -166,20 +185,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         displayText += " - " + msgText;
       }
+
       sessionLink.innerText = displayText;
       sessionLink.dataset.index = index;
       sessionLink.addEventListener("click", (e) => {
         e.preventDefault();
-        // Lade den archivierten Chat (ohne Bestätigungs-Popup)
         loadChatSession(index);
       });
 
-      // Erstelle den "X"-Button zum Löschen
+      // "X"-Button zum Löschen des Chats
       const deleteButton = document.createElement("button");
       deleteButton.classList.add("delete-session");
       deleteButton.innerText = "X";
       deleteButton.addEventListener("click", (e) => {
-        e.stopPropagation(); // Verhindert das Auslösen des Click-Events vom Link
+        e.stopPropagation();
         if (confirm("Möchtest du diesen Chat wirklich löschen?")) {
           deleteArchivedChat(index);
         }
@@ -191,32 +210,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Lädt einen archivierten Chat, bleibt aber im Archiv erhalten, bis er fortgeführt wird
+  // Lädt eine frühere Sitzung in den Chatbereich
   function loadChatSession(index) {
     let archived = JSON.parse(localStorage.getItem("chatSessions")) || [];
     const session = archived[index];
     if (!session) return;
+
     chatMessages.innerHTML = "";
-    currentChatSession = session.messages.slice(); // Kopie des archivierten Chats
+    currentChatSession = session.messages.slice(); // Tiefkopie
     session.messages.forEach(msg => {
       const messageWrapper = createMessageElement(msg.text, msg.sender);
       chatMessages.appendChild(messageWrapper);
     });
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
     loadedArchiveIndex = index;
 
-      // Entferne 'selected' von allen Links und setze ihn für den ausgewählten Link
-  document.querySelectorAll("#chat-sessions .session-container a").forEach(link => {
-    link.classList.remove("selected");
-  });
-  const selectedLink = document.querySelector(`#chat-sessions .session-container a[data-index="${index}"]`);
-  if (selectedLink) {
-    selectedLink.classList.add("selected");
+    // Visuelle Hervorhebung der aktuellen Sitzung
+    document.querySelectorAll("#chat-sessions .session-container a").forEach(link => {
+      link.classList.remove("selected");
+    });
+    const selectedLink = document.querySelector(`#chat-sessions .session-container a[data-index="${index}"]`);
+    if (selectedLink) {
+      selectedLink.classList.add("selected");
+    }
   }
-  }
-  
 
-  // Event-Listener für Senden-Button und Enter-Taste
+  // Event Listener für Buttons und Tastatur
   sendButton.addEventListener("click", postChatMessage);
   userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -226,9 +246,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   newChatButton.addEventListener("click", newChat);
 
-  // Automatisches Speichern beim Verlassen der Seite
+  // Speichert Chatverlauf beim Verlassen der Seite automatisch
   window.addEventListener("beforeunload", saveCurrentChat);
 
-  // Beim Laden der Seite werden die archivierten Chats in der Sidebar angezeigt
+  // Archiv beim Laden anzeigen
   loadArchivedChats();
 });
