@@ -19,10 +19,34 @@
   /* --- Seitenleiste --- */
   .sidebar {
     width: 240px;
-    background-color: #202123; 
+    background-color: #202123 ; /* gleiche grau-schwarze Farbe */
+    color: white;
     display: flex;
     flex-direction: column;
     padding: 16px;
+    height: 100vh;
+  }
+  
+  .chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: #202123; 
+    scrollbar-width: thin;
+    scrollbar-color: #444 #202123;
+  }
+  
+  /* WebKit Scrollbar für Chrome, Safari, Edge */
+  .chat-history::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .chat-history::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 3px;
+  }
+  
+  .chat-history::-webkit-scrollbar-track {
+    background-color: #1e1e2f;
   }
   
   .sidebar-header {

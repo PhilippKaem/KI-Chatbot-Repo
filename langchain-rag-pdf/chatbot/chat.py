@@ -46,7 +46,6 @@ history_aware_retriever = create_history_aware_retriever(
     retriever_prompt
 )
 
-# Hier ist die Korrektur: Statt ("context", "{context}") nutzen wir {context} im Text
 answer_prompt = ChatPromptTemplate.from_messages([
     ("system", """Du bist ein erfahrener Studienberater für die DHBW Ravensburg im Studiengang Wirtschaftsinformatik mit dem Studienschwerpunkt Data Science. 
 Deine Aufgabe ist es, Studieninteressierte kompetent und verständlich über den Studiengang zu informieren.
