@@ -1,4 +1,4 @@
-### RAG Testing: Q&A
+### RAG Testing Prototyp 1: Q&A
 
 # Allgemein duales Studium
 
