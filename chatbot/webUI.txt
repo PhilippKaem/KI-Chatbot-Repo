@@ -1,0 +1,2 @@
+Zum Starten der Schnittstelle für den Live Server: python chat_api.py
+Rechtsklick auf index.html und dann open with live Server
